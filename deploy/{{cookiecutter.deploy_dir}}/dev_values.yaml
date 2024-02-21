@@ -1,0 +1,56 @@
+nginx:
+  enabled: true
+  chart: "bitnami/nginx"
+  service:
+    type: ClusterIP
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  ingress:
+    enabled: true
+    hostname: nginx-{{cookiecutter.licence_plate}}-dev.apps.emerald.devops.gov.bc.ca
+  version: "{{ cookiecutter.nginx_version }}"
+  image:
+    pullPolicy: Always
+  podLabels:
+    environment: dev
+    env: development
+    owner: "{{cookiecutter.team_name}}"
+    project: "{{cookiecutter.project_name}}"
+    DataClass: "Medium"
+  commonLabels:
+    environment: dev
+    env: development
+    owner: "{{cookiecutter.team_name}}"
+    project: "{{cookiecutter.project_name}}"
+    DataClass: "Medium"
+  replicaCount: 1
+
+postgresql:
+  enabled: true
+  image:
+    pullPolicy: Always
+  commonLabels:
+    environment: dev
+    env: development
+    owner: "{{cookiecutter.team_name}}"
+    project: "{{cookiecutter.project_name}}"
+    DataClass: "Medium"
+  primary:
+    podSecurityContext:
+      enabled: false
+    containerSecurityContext:
+      enabled: false
+    labels:
+      environment: dev
+      env: development
+      owner: "{{cookiecutter.team_name}}"
+      project: "{{cookiecutter.project_name}}"
+      DataClass: "Medium"
+    podLabels:
+      environment: dev
+      env: development
+      owner: "{{cookiecutter.team_name}}"
+      project: "{{cookiecutter.project_name}}"
+      DataClass: "Medium"

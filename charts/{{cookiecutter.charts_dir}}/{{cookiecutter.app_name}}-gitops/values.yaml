@@ -1,0 +1,26 @@
+# {{ cookiecutter.app_name }}-charts/values.yaml
+my_app_name: "{{ cookiecutter.app_name }}"
+
+nginx:
+  enabled: true
+  chart: "bitnami/nginx"
+  service:
+    type: ClusterIP
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  ingress:
+    enabled: true
+    hostname: nginx-{{cookiecutter.licence_plate}}-dev.apps.emerald.devops.gov.bc.ca
+  version: "{{ cookiecutter.nginx_version }}"
+
+postgresql:
+  enabled: true
+  chart: "bitnami/postgresql"
+  version: "{{ cookiecutter.postgresql_version }}"
+
+aspnet-core:
+  enabled: false
+  chart: "bitnami/aspnetcore"
+  version: "{{ cookiecutter.aspnetcore_version }}"

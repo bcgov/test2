@@ -1,0 +1,62 @@
+name: "K8s Security Policy Check"
+
+on:
+  push:
+    branches:
+      - main
+      - test
+      - develop
+    tags:
+      - "*"
+
+  pull_request:
+    branches:
+      - main
+      - test
+      - develop
+
+jobs:
+  policy-check:
+    name: policy-check
+    runs-on: ubuntu-latest
+    env:
+      policy-directory: ./.github/workflows
+      GITHUB_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN {{ "}}" }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+
+      - uses: azure/setup-helm@v3
+        with:
+          version: "latest " # default is latest (stable)
+          token: ${{ "{{" }} secrets.GITHUB_TOKEN {{ "}}" }} # only needed if version is 'latest'
+        id: install
+
+      - name: Policy Enforcement
+        id: policy
+        run: |
+          # install and configure Datree plugin 
+          helm plugin install https://github.com/datreeio/helm-datree
+          helm plugin update datree
+
+          helm datree config set offline local 
+
+          # Run datree config scan against ISB K8s policies
+
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            echo "This is the main branch"
+            helm datree test --ignore-missing-schemas --policy-config ../policies.yaml --include-tests ../../charts/{{cookiecutter.app_name}}-gitops -- --namespace {{cookiecutter.licence_plate}}-prod  --values ../../deploy/prod_values.yaml {{cookiecutter.app_name}}-app-prod
+          elif [[ "$GITHUB_REF" == "refs/heads/develop" || "$GITHUB_REF" == "refs/heads/gitops" ]]; then
+            echo "This is the dev branch"
+            helm datree test --ignore-missing-schemas --policy-config ../policies.yaml  --include-tests ../../charts/{{cookiecutter.app_name}}-gitops -- --namespace {{cookiecutter.licence_plate}}-dev  --values ../../deploy/dev_values.yaml {{cookiecutter.app_name}}-app-dev
+          elif [[ "$GITHUB_REF" == "refs/heads/test" ]]; then
+            echo "This is the test branch"
+            helm datree test --ignore-missing-schemas --policy-config ../policies.yaml --include-tests ../../charts/{{cookiecutter.app_name}}-gitops -- --namespace {{cookiecutter.licence_plate}}-test --values ../../deploy/test_values.yaml {{cookiecutter.app_name}}-app-test
+          else
+            echo "This is another branch"
+            # Add commands for other branches here, if needed
+          fi
+
+        working-directory: ${{ "{{" }}env.policy-directory{{ "}}" }}

@@ -1,0 +1,15 @@
+nginx:
+  image:
+    pullPolicy: Always
+  ingress:
+     hostname: nginx-{{cookiecutter.licence_plate}}-test.apps.emerald.devops.gov.bc.ca
+  podLabels: 
+    environment: test
+    env: staging
+    owner: "{{cookiecutter.team_name}}"
+    project: "{{cookiecutter.project_name}}"
+  commonLabels:
+    environment: test
+    env: staging
+    owner: "{{cookiecutter.team_name}}"
+    project: "{{cookiecutter.project_name}}"
